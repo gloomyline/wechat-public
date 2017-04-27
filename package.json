@@ -1,0 +1,24 @@
+{
+  "name": "wechat-public",
+  "version": "1.0.0",
+  "description": "a public services on wechat",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --hamorny app.js",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gloomyline/wechat-public.git"
+  },
+  "keywords": [],
+  "author": "Alan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gloomyline/wechat-public/issues"
+  },
+  "homepage": "https://github.com/gloomyline/wechat-public#readme",
+  "devDependencies": {
+    "webpack": "^2.4.1"
+  }
+}
