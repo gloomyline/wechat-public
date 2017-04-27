@@ -4,7 +4,7 @@
   "description": "a public services on wechat",
   "main": "index.js",
   "scripts": {
-    "test": "node --hamorny app.js",
+    "test": "node --harmony app",
     "build": "webpack"
   },
   "repository": {
@@ -20,5 +20,9 @@
   "homepage": "https://github.com/gloomyline/wechat-public#readme",
   "devDependencies": {
     "webpack": "^2.4.1"
+  },
+  "dependencies": {
+    "koa": "^2.2.0",
+    "sha1": "^1.1.1"
   }
 }
