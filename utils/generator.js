@@ -2,7 +2,7 @@
  * @Author: Alan
  * @Date:   2017-05-04 00:59:28
  * @Last Modified by:   Alan
- * @Last Modified time: 2017-05-04 22:08:26
+ * @Last Modified time: 2017-05-05 10:26:00
  */
 
 'use strict';
@@ -16,7 +16,6 @@ var request = Promise.promisify(require('request'));
 var accessTokenUpdate = require('../configs/api').AccessTokenUpdate;
 
 function AccessToken(args){
-	var that = this;
 	this.appID = args.appID;
 	this.appSecret = args.appSecret;
 	this.token = args.token;
@@ -27,6 +26,7 @@ function AccessToken(args){
 }
 
 AccessToken.prototype.init = function () {
+	var that = this;
 	this.getAccessToken()
 		.then(function(data) {
 			try{
@@ -36,7 +36,7 @@ AccessToken.prototype.init = function () {
 			}
 
 			if (that.isValidAccessToken(data)){
-				Promise.resolve(data);
+				return Promise.resolve(data);
 			}else{
 				return that.updateAccessToken();
 			}
@@ -68,8 +68,8 @@ AccessToken.prototype.updateAccessToken = function () {
 		request({url: url, json: true})
 			.then(function (res) {
 				// console.log('res from server:', res)
-				var data = res[1]; 	//获取微信返回的 JSON 数据包中包含 access_token 和 expires_in 的jSON数据
-				var now = (new date().getTime());
+				var data = res.body; 	//获取微信返回的 JSON 数据包中包含 access_token 和 expires_in 的jSON数据
+				var now = (new Date().getTime());
 				var expires_in = now + (data.expires_in - 20) * 1000; //凭证有效时间 expires_in, 单位: 秒, 考虑网络延迟、服务器计算时间等，延迟20秒更新
 
 				data.expires_in = expires_in;

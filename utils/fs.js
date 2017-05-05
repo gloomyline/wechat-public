@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-04 22:11:11
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-04 22:26:23
+* @Last Modified time: 2017-05-05 10:15:02
 */
 
 'use strict';
@@ -15,12 +15,17 @@ module.exports = {
 		return new Promise(function (resolve, reject) {
 			fs.readFile(fpath, encoding, function (err, cont) {
 				if (err) reject(err);
-				else resolve(cont);
+				else {
+					// cont = JSON.parse(cont);
+					resolve(cont);
+				}
 			})
 		})
 	},
 	writeFileAsync: function (fpath, cont) {
 		return new Promise(function (resolve, reject) {
+			cont = JSON.stringify(cont);
+
 			fs.writeFile(fpath, cont, function (err) {
 				if (err) reject(err);
 				else resolve();
