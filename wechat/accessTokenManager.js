@@ -1,18 +1,13 @@
 /*
- * @Author: Alan
- * @Date:   2017-05-04 00:59:28
- * @Last Modified by:   Alan
- * @Last Modified time: 2017-05-05 10:26:00
- */
+* @Author: Alan
+* @Date:   2017-05-05 11:37:37
+* @Last Modified by:  Alan
+* @Last Modified time: 2017-05-07 16:52:22
+*/
 
 'use strict';
-
-// var authen = require('../configs/authentication');
-// var wechat = authen.WECHAT;
-var sha1 = require('sha1');
 var Promise = require('bluebird');
 var request = Promise.promisify(require('request'));
-
 var accessTokenUpdate = require('../configs/api').AccessTokenUpdate;
 
 function AccessToken(args){
@@ -22,7 +17,7 @@ function AccessToken(args){
 	this.getAccessToken = args.getAccessToken;
 	this.saveAccessToken = args.saveAccessToken;
 
-	this.init()
+	this.init();
 }
 
 AccessToken.prototype.init = function () {
@@ -79,27 +74,10 @@ AccessToken.prototype.updateAccessToken = function () {
 	})
 }
 
+// module.exports = {
+// 	AccessToken: AccessToken
+// }
 
-module.exports = {
-	weChatAuthenticate: function(opts) {
-		var accessToken = new AccessToken(opts);
-
-		return function*() {
-			var token = opts.token;
-			var signature = this.query.signature;
-			var timestamp = this.query.timestamp;
-			var nonce = this.query.nonce;
-			var echostr = this.query.echostr;
-
-			var _str = Array(token, timestamp, nonce).sort().join('');
-			var shaStr = sha1(_str);
-
-			if (shaStr === signature) {
-				this.body = echostr + '';
-				console.log('echostr:', echostr)
-			} else {
-				this.body = 'wrong';
-			}
-		}
-	}
+module.exports.AccessToken = function (args) {
+	return new AccessToken(args)
 }
