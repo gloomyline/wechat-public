@@ -2,7 +2,7 @@
  * @Author: Alan
  * @Date:   2017-05-04 00:59:28
  * @Last Modified by:   Alan
- * @Last Modified time: 2017-05-07 17:37:06
+ * @Last Modified time: 2017-05-08 03:37:46
  */
 
 'use strict';
@@ -12,13 +12,14 @@
 var sha1 = require('sha1');
 var getRawBody = require('raw-body');
 var AccessToken = require('./accessTokenManager').AccessToken;
+var Reply = require('./replyManager')
 var utils = require('../libs/utils');
 
 module.exports = {
 	weChatAuthenticate: function(opts) {
-		var accessToken = new AccessToken(opts);
+		var accessToken = AccessToken(opts);
 
-		return function*() {
+		return function* (next) {
 			var that = this;
 			var token = opts.token;
 			var signature = this.query.signature;
@@ -55,44 +56,27 @@ module.exports = {
 
 				console.log('formated wechat user\'s message', message);
 
-				if (message.MsgType === 'event') {
-					if (message.Event === 'subscribe') {
-						// var now = (new Date().getTIme());
-						var reply = '<xml>'
-							'<ToUserName><![CDATA[' + message.FromUserName + ']]></ToUserName>' +
-							'<FromUserName><![CDATA[' + message.ToUserName + ']]></FromUserName>' +
-							'<CreateTime>' + utils.getNow() + '</CreateTime>' +
-							'<MsgType><![CDATA[text]]></MsgType>' +
-							'<Content><![CDATA[' + 'This is automatic reply2!' + ']]></Content>' +
-							'</xml>'
-						console.log('public services response:', reply);
+				this.weixin = message;
 
-						that.status = 200;
-						that.type = 'application/xml';
-						that.body = reply;
-
-						return;
-					}
-
-				}
-				else if(message.MsgType === 'text') {
-					var reply = '<xml>' +
-						'<ToUserName><![CDATA[' + message.FromUserName + ']]></ToUserName>' +
-						'<FromUserName><![CDATA[' + message.ToUserName + ']]></FromUserName>' +
-						'<CreateTime>' + utils.getNow() + '</CreateTime>' +
-						'<MsgType><![CDATA[text]]></MsgType>' +
-						'<Content><![CDATA[' + 'This is automatic reply2!' + ']]></Content>' +
-						'</xml>'
-					console.log('public services response:', reply);
-
-					that.status = 200;
-					that.type = 'application/xml';
-					that.body = reply;
-
-					return;
-				}
+				yield next;
 			}
 
+		}
+	},
+	weChatReplyPassive: function () {
+		return function* (next) {
+			
+			var message = this.weixin;
+			var reply = new Reply(message);
+			var content = reply.doReply();
+
+			var xml = utils.tpl(content, message);
+
+			this.status = 200;
+			this.type = 'application/xml';
+			this.body = xml;
+
+			console.log('reply content', xml)
 		}
 	}
 }

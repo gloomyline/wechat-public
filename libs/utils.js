@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-04 22:11:11
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-07 17:31:10
+* @Last Modified time: 2017-05-08 02:39:27
 */
 
 'use strict';
@@ -10,17 +10,17 @@
 var fs = require('fs');
 var xml2js = require('xml2js');
 var Promise = require('bluebird');
+var tpl = require('../tpls/passiveReply');
 
 module.exports = {
 	getNow: function () {
-		return (new Date().getTime());	
+		return _getNow();	
 	},
 	readFileAsync: function (fpath, encoding) {
 		return new Promise(function (resolve, reject) {
 			fs.readFile(fpath, encoding, function (err, cont) {
 				if (err) reject(err);
 				else {
-					// cont = JSON.parse(cont);
 					resolve(cont);
 				}
 			})
@@ -46,7 +46,37 @@ module.exports = {
 	},
 	formatMessage:function (xml) {
 		return _formatMessage(xml)
+	},
+	tpl: function (content, message) {
+		var info = {};
+		var type = 'text';
+		var fromUserName = message.FromUserName;
+		var toUserName = message.ToUserName
+
+		if (Array.isArray(content)) {
+			type = 'news';
+		}
+
+		type = content.type || type;
+		info.content = content;
+		info.toUserName = toUserName;
+		info.fromUserName = fromUserName;
+		info.msgType = type;
+		info.createTime = _getNow();
+
+		return tpl.compiled(info)
+
 	}
+}
+
+/**
+ * 获取当前时间
+ * @Author   Alan
+ * @DateTime 2017-05-08
+ * @return   {[Number]}   当前时间戳
+ */
+function _getNow() {
+	return (new Date().getTime());
 }
 
 /**
@@ -88,4 +118,5 @@ function _formatMessage(result) {
 
 	return message
 }
+
 
