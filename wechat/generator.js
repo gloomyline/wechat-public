@@ -2,7 +2,7 @@
  * @Author: Alan
  * @Date:   2017-05-04 00:59:28
  * @Last Modified by:   Alan
- * @Last Modified time: 2017-05-08 03:37:46
+ * @Last Modified time: 2017-05-09 17:31:17
  */
 
 'use strict';
@@ -11,13 +11,14 @@
 // var wechat = authen.WECHAT;
 var sha1 = require('sha1');
 var getRawBody = require('raw-body');
-var AccessToken = require('./accessTokenManager').AccessToken;
+var util = require('util');
+var WeChat = require('./WeChat').WeChat;
 var Reply = require('./replyManager')
 var utils = require('../libs/utils');
 
 module.exports = {
 	weChatAuthenticate: function(opts) {
-		var accessToken = AccessToken(opts);
+		var wechat = WeChat(opts);
 
 		return function* (next) {
 			var that = this;
@@ -76,7 +77,7 @@ module.exports = {
 			this.type = 'application/xml';
 			this.body = xml;
 
-			console.log('reply content', xml)
+			util.log('reply content', xml)
 		}
 	}
 }

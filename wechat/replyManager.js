@@ -2,10 +2,12 @@
 * @Author: Alan
 * @Date:   2017-05-08 01:08:08
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-08 03:39:59
+* @Last Modified time: 2017-05-09 17:42:25
 */
 
 'use strict';
+
+var wechatApi = require('./WeChat').WeChat()
 
 var Reply = function (args) {
 	this.reqType = args.Content;
@@ -19,6 +21,7 @@ Reply.prototype.init = function () {
 }
 
 Reply.prototype.reply = function () {
+	var that = this
 	if (Number(this.reqType) === 1) {
 		this.replyData = 'basketball';
 	}
@@ -37,6 +40,16 @@ Reply.prototype.reply = function () {
 				url: 'https://github.com/gloomyline'
 			}
 		];
+	}
+	else if(Number(this.reqType) === 5) {
+		wechatApi.uploadMaterial('image', __dirname + '/assets/images/1.jpg')
+			.then(function (data) {
+
+				that.replyData = {
+					type: 'image',
+					media_id: data.media_id
+				}
+			})
 	}
 }
 
