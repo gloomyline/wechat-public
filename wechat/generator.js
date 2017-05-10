@@ -2,82 +2,63 @@
  * @Author: Alan
  * @Date:   2017-05-04 00:59:28
  * @Last Modified by:   Alan
- * @Last Modified time: 2017-05-09 17:31:17
+ * @Last Modified time: 2017-05-10 03:55:21
  */
 
 'use strict';
 
-// var authen = require('../configs/authentication');
-// var wechat = authen.WECHAT;
 var sha1 = require('sha1');
 var getRawBody = require('raw-body');
-var util = require('util');
-var WeChat = require('./WeChat').WeChat;
-var Reply = require('./replyManager')
-var utils = require('../libs/utils');
+var _util = require('util')
+var WeChat = require('./WeChat')
+var util = require('./util');
 
-module.exports = {
-	weChatAuthenticate: function(opts) {
-		var wechat = WeChat(opts);
+module.exports = function (opts, handler) {
+	var weChat = new WeChat(opts)
 
-		return function* (next) {
-			var that = this;
-			var token = opts.token;
-			var signature = this.query.signature;
-			var timestamp = this.query.timestamp;
-			var nonce = this.query.nonce;
-			var echostr = this.query.echostr;
+	return function* (next) {
+		var that = this;
+		var token = opts.token;
+		var signature = this.query.signature;
+		var timestamp = this.query.timestamp;
+		var nonce = this.query.nonce;
+		var echostr = this.query.echostr;
 
-			var _str = Array(token, timestamp, nonce).sort().join('');
-			var shaStr = sha1(_str);
+		var _str = Array(token, timestamp, nonce).sort().join('');
+		var shaStr = sha1(_str);
 
-			if (this.method === 'GET') {
-				if (shaStr === signature) {
-					this.body = echostr + '';
-				} else {
-					this.body = 'wrong';
-				}
+		if (this.method === 'GET') {
+			if (shaStr === signature) {
+				this.body = echostr + '';
+			} else {
+				this.body = 'wrong';
 			}
-			else if (this.method === 'POST') {
-				if (shaStr !== signature) {
-					this.body = 'wrong';
-
-					return false
-				} 
-
-				var data = yield getRawBody(this.req, { // wechat server POST 的数据设置
-					length: this.length,
-					limit: '1mb',
-					encoding: this.charset
-				})
-
-				var content = yield utils.parseXMLAsync(data);
-
-				var message = utils.formatMessage(content.xml);
-
-				console.log('formated wechat user\'s message', message);
-
-				this.weixin = message;
-
-				yield next;
-			}
-
 		}
-	},
-	weChatReplyPassive: function () {
-		return function* (next) {
-			
-			var message = this.weixin;
-			var reply = new Reply(message);
-			var content = reply.doReply();
+		else if (this.method === 'POST') {
+			if (shaStr !== signature) {
+				this.body = 'wrong';
 
-			var xml = utils.tpl(content, message);
+				return false
+			} 
 
-			this.status = 200;
-			this.type = 'application/xml';
-			this.body = xml;
+			var data = yield getRawBody(this.req, { // wechat server POST 的数据设置
+				length: this.length,
+				limit: '1mb',
+				encoding: this.charset
+			})
 
-			util.log('reply content', xml)
+			var content = yield util.parseXMLAsync(data);
+
+			var message = util.formatMessage(content.xml);
+
+			_util.log(message);
+
+			this.weixin = message;
+			 
+			yield handler.call(this, next)
+
+			weChat.reply.call(this) 
 		}
+
 	}
 }

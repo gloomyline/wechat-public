@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-07 23:04:38
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-08 02:41:26
+* @Last Modified time: 2017-05-10 02:25:50
 */
 
 'use strict';
@@ -10,7 +10,7 @@
 var heredoc = require('heredoc');
 var ejs = require('ejs');
 
-var tpl = heredoc(function () {/*
+var replyPassivelytpl = heredoc(function () {/*
 	<xml>
 	<ToUserName><![CDATA[<%= fromUserName %>]]></ToUserName>
 	<FromUserName><![CDATA[<%= toUserName %>]]></FromUserName>
@@ -56,8 +56,8 @@ var tpl = heredoc(function () {/*
 	</xml>
 */});
 
-var compiled = ejs.compile(tpl);
+var compiled = ejs.compile(replyPassivelytpl);
 
-exports.compiled = function (data) {
-	return compiled(data);
+exports = module.exports = {
+	compiled: compiled
 }
