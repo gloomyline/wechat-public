@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-10 02:43:11
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-12 16:52:22
+* @Last Modified time: 2017-05-12 17:05:03
 */
 
 'use strict';
@@ -225,6 +225,12 @@ exports.reply = function* (next) {
  			console.log('users:', users)
 
  			reply = JSON.stringify(user)
+ 		}
+ 		else if (content === '15') {
+ 			var userList = yield wechatApi.getUsersList()
+ 			console.log('user_list:', userList)
+
+ 			reply = JSON.stringify(userList)
  		}
 
 		this.body = reply

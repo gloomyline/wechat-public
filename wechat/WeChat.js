@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-05 11:37:37
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-12 16:56:39
+* @Last Modified time: 2017-05-12 17:12:31
 */
 
 'use strict';
@@ -769,33 +769,20 @@ WeChat.prototype.getUserInfo = function (userId, lang) {
  */
 WeChat.prototype.getUsersList = function (next_openid) {
 	var that = this
-	var next_openid = next_openid || ''
 	
 	return new Promise(function (resolve, reject) {
 		that.fetchAccessToken()
 			.then(function (data) {
-				var url = wechatApi.user.getUsersList + '&next_openid=' + next_openid
+				var url = weChatApi.user.getUsersList + '?access_token=' + data.access_token
+				url = (next_openid)? (url + '&next_openid=' + next_openid) : url
+				
 				var options = {
 					method: 'GET',
 					url: url,
 					json:true
 				}
 
-				// that.request(resolve, reject, options, 'GET Users List Fails')
-				request(options)
-					.then(function (res) {
-						var data = res.body
-						if(data) {
-							resolve(data)
-						}
-						else{
-							var err = err || ''
-							throw new Error(err)
-						}
-					})
-					.catch(function (_err) {
-						reject(_err)
-					})
+				that.request(resolve, reject, options, 'GET Users List Fails')
 			})
 	})
 }
