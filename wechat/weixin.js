@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-10 02:43:11
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-11 16:41:55
+* @Last Modified time: 2017-05-12 16:52:22
 */
 
 'use strict';
@@ -200,6 +200,32 @@ exports.reply = function* (next) {
 			console.log(tagList.tags);
 			reply = JSON.stringify(tagList.tags)
 		}
+		else if (content === '13') {
+			var tag = yield wechatApi.createTag('Wechat')
+			console.log('new tag wechat:', tag)
+
+			var tagList = yield wechatApi.getTags()
+			console.log('tag list: ', tagList)
+
+			var selfId = [message.FromUserName]
+			var tags = tagList.tags
+			var batchTaggingSelf = yield wechatApi.batchTagging(selfId, tags[tags.length - 1].id)
+
+			var tagsSelf = yield wechatApi.getIdList(message.FromUserName)
+			console.log('self tag list: ', tagsSelf)
+
+			reply = 'Tag End!'
+ 		}
+ 		else if (content === '14') {
+ 			var user = yield wechatApi.getUserInfo(message.FromUserName) 
+ 			console.log('user:', user)
+
+ 			var openIds = [{openid: message.FromUserName, lang: 'en'}]
+ 			var users = yield wechatApi.getUserInfo(openIds)
+ 			console.log('users:', users)
+
+ 			reply = JSON.stringify(user)
+ 		}
 
 		this.body = reply
 	}	

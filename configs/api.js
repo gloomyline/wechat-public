@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-04 21:31:52
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-11 10:05:56
+* @Last Modified time: 2017-05-12 16:14:44
 */
 
 'use strict';
@@ -25,7 +25,7 @@ module.exports = {
 		count: urlPrefix + 'material/get_materialcount',		// 素材总数
 		list: urlPrefix + 'material/batchget_materia'			// 素材列表
 	},
-	tag: {													// 用户管理
+	tag: {														// 标签管理
 		create: urlPrefix + 'tags/create',						// 创建标签
 		get: urlPrefix + 'tags/get',							// 获取标签列表
 		update: urlPrefix + 'tags/update',						// 编辑标签
@@ -34,5 +34,11 @@ module.exports = {
 		batchTagging: urlPrefix + 'tags/members/batchtagging',	// 批量为用户打标签
 		batchUntagging: urlPrefix + 'tags/members/batchuntagging', // 批量为用户取消标签
 		getIdList: urlPrefix + 'tags/getidlist' 				// 获取用户的标签列表
+	},
+	user: {														// 用户管理
+		remark: urlPrefix + 'user/info/updateremark',			// 设置用户备注 
+		getUserInfo: urlPrefix + 'user/info',					// 获取用户基本信息
+		getUsersInfo: urlPrefix + 'user/info/batchget',			// 批量获取用户信息
+		getUsersList: urlPrefix + 'user/get',					// 获取用户列表	
 	}
 }

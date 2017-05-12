@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-05 11:37:37
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-12 09:50:40
+* @Last Modified time: 2017-05-12 16:56:39
 */
 
 'use strict';
@@ -118,8 +118,8 @@ WeChat.prototype.reply = function (type, filepath) {
  * @param    String   err     接口请求返回的数据不存在抛出的错误描述
  * @return   null           
  */
-WeChat.prototype.request = function (options, err) {
-	var options = options || {}
+WeChat.prototype.request = function (resolve, reject, options, err) {
+
 	request(options)
 		.then(function (res) {
 			var data = res.body
@@ -689,5 +689,136 @@ WeChat.prototype.getIdList = function (openid) {
 			})
 	})
 }
+
+/**
+ * 设置用户备注名
+ * @Author   Alan
+ * @DateTime 2017-05-12
+ * @param    String   openid    用户Id
+ * @param    String   newRemark 用户备注名
+ * @return   JSON		微信服务器返回           
+ */
+WeChat.prototype.setUserRemark = function (openid, newRemark) {
+	var that = this
+	var formData = {openid: openid, remark: newRemark}
+
+	return new Promise(function (resolve, reject) {
+		that.fetchAccessToken()
+			.then(function (data) {
+				var url = weChatApi.user.remark + '?access_token=' + data.access_token
+
+				var options = {
+					method: 'POST',
+					url: url,
+					body: formData,
+					json:true
+				}
+
+				that.request(resolve, reject, options, 'Set User Remark Fails')
+			})
+	})
+}
+
+/**
+ * 获取用户基本信息
+ * @Author   Alan
+ * @DateTime 2017-05-12
+ * @param    any   userId Array || String Array则是用户列表，String则是单个用户ID
+ * @param    String   lang   国家地区语言版本: zh_CN简体, zh_TW繁体, en英语
+ * @return   JSON			返回用户基本信息JSON数据包        
+ */
+WeChat.prototype.getUserInfo = function (userId, lang) {
+	var that = this
+	var lang = lang || 'zh_CN'
+
+	return new Promise(function (resolve, reject) {
+		that.fetchAccessToken()
+			.then(function (data) {
+
+				var options = {
+					method: 'POST',
+					url: '',
+					body: '',
+					json:true
+				}
+
+				if (_.isArray(userId)) { // lodash中判断数组的方法
+					options.body = {user_list: userId}
+					options.url = weChatApi.user.getUsersInfo + '?access_token=' + data.access_token
+				}
+				else{
+					options.url = weChatApi.user.getUserInfo + '?access_token=' + data.access_token
+						+ '&openid=' + userId + '&lang=' + lang
+					options.method = 'GET'
+					options.body = null
+				}
+
+				that.request(resolve, reject, options, 'Get User Infos Fails')
+			})
+	})
+}
+
+/**
+ * 获取用户列表
+ * @Author   Alan
+ * @DateTime 2017-05-12
+ * @param    String   next_openid 第一个拉取的OPENID，不填默认从头开始拉取
+ * @return   JSON       返回用户基本信息JSON数据包  
+ * @example         	{"total":2,"count":2,"data":{"openid":["","OPENID1","OPENID2"]},"next_openid":"NEXT_OPENID"}
+ * @Notice 	一次拉取调用最多拉取10000个关注者的OpenID，可通过填写next_openid的值, 通过多次拉取的方式来满足需求
+ */
+WeChat.prototype.getUsersList = function (next_openid) {
+	var that = this
+	var next_openid = next_openid || ''
+	
+	return new Promise(function (resolve, reject) {
+		that.fetchAccessToken()
+			.then(function (data) {
+				var url = wechatApi.user.getUsersList + '&next_openid=' + next_openid
+				var options = {
+					method: 'GET',
+					url: url,
+					json:true
+				}
+
+				// that.request(resolve, reject, options, 'GET Users List Fails')
+				request(options)
+					.then(function (res) {
+						var data = res.body
+						if(data) {
+							resolve(data)
+						}
+						else{
+							var err = err || ''
+							throw new Error(err)
+						}
+					})
+					.catch(function (_err) {
+						reject(_err)
+					})
+			})
+	})
+}
+
+
+// WeChat.prototype.getUsersList = function (next_openid) {
+// 	var that = this
+// 	var next_openid = next_openid || ''
+	
+// 	return new Promise(function (resolve, reject) {
+// 		that.fetchAccessToken()
+// 			.then(function (data) {
+// 				var url = wechatApi.user.getUsersList + '&next_openid=' + next_openid
+// 				var options = {
+// 					method: 'GET',
+// 					url: url,
+// 					json:true
+// 				}
+
+// 				that.request(options, 'GET Users List Fails')
+// 			})
+// 	})
+// }
+
 
 module.exports = WeChat
