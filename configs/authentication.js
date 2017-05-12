@@ -2,7 +2,7 @@
  * @Author: Alan
  * @Date:   2017-04-27 23:39:13
  * @Last Modified by:   Alan
- * @Last Modified time: 2017-05-05 15:20:28
+ * @Last Modified time: 2017-05-11 14:56:29
  */
 
 'use strict';
@@ -22,5 +22,5 @@ module.exports = {
 		saveAccessToken: function (data) {
 			return utils.writeFileAsync(access_token, data);
 		}
-	}
+	},
 }

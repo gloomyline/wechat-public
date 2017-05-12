@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-05 11:37:37
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-10 17:17:24
+* @Last Modified time: 2017-05-12 09:50:40
 */
 
 'use strict';
@@ -15,9 +15,10 @@ var util = require('./util')
 var utils = require('../libs/utils')
 
 var weChatApi = require('../configs/api')
-var accessTokenUpdate = weChatApi.AccessTokenUpdate;
-var temporaryUrls = weChatApi.temporary
-var permanentUrls = weChatApi.permanent
+var accessTokenUpdate = weChatApi.AccessTokenUpdate;	// 更新 access_token 接口
+var temporaryUrls = weChatApi.temporary 				// 临时素材接口
+var permanentUrls = weChatApi.permanent 				// 永久素材
+var tagUrls = weChatApi.tag 							// 标签
 
 function WeChat(args){
 	this.appID = args.appID;
@@ -104,6 +105,35 @@ WeChat.prototype.reply = function (type, filepath) {
 	this.status = 200
 	this.type = 'application/xml'
 	this.body = xml
+}
+
+/**
+ * 请求微信服务器指定的接口
+ * @Author   Alan
+ * @DateTime 2017-05-12
+ * @param    Object   options 
+ * 包含url(接口地址)、method(请求方式)、
+ * body(若是'POST'请求,所需传输数据)、
+ * json 表示传输数据的格式是否是JSON
+ * @param    String   err     接口请求返回的数据不存在抛出的错误描述
+ * @return   null           
+ */
+WeChat.prototype.request = function (options, err) {
+	var options = options || {}
+	request(options)
+		.then(function (res) {
+			var data = res.body
+			if(data) {
+				resolve(data)
+			}
+			else{
+				var err = err || ''
+				throw new Error(err)
+			}
+		})
+		.catch(function (_err) {
+			reject(_err)
+		})
 }
 
 WeChat.prototype.getMaterialCount = function () {
@@ -347,6 +377,310 @@ WeChat.prototype.deleteMaterial = function (mediaId) {
 						}
 						else{
 							throw new Error('delete material fails')
+						}
+					})
+					.catch(function (err) {
+						reject(err)
+					})
+			})
+	})
+}
+
+WeChat.prototype.createTag = function (name) {
+	var that = this
+	var formData = {tag: {name: name}}
+	var createUrl = tagUrls.create
+
+	return new Promise(function (resolve, reject) {
+		that.fetchAccessToken()
+			.then(function (data) {
+				var url = createUrl + '?access_token=' + data.access_token
+
+				var options = {
+					method: 'POST',
+					url: url,
+					body: formData,
+					json:true
+				}
+
+				request(options)
+					.then(function (res) {
+						var _data = res.body
+
+						if (_data) {
+							resolve(_data)
+						}
+						else{
+							throw new Error('Create Tag Fails')
+						}
+					})
+					.catch(function (err) {
+						reject(err)
+					})
+			})
+	})
+}
+
+WeChat.prototype.getTags = function () {
+	var that = this
+	var getUrl = tagUrls.get
+
+	return new Promise(function (resolve, reject) {
+		that.fetchAccessToken()
+			.then(function (data) {
+				var url = getUrl + '?access_token=' + data.access_token
+
+				var options = {
+					method: 'GET',
+					url: url,
+					json:true
+				}
+
+				request(options)
+					.then(function (res) {
+						var _data = res.body
+
+						if (_data) {
+							resolve(_data)
+						}
+						else{
+							throw new Error('Create Tag Fails')
+						}
+					})
+					.catch(function (err) {
+						reject(err)
+					})
+			})
+	})
+}
+
+WeChat.prototype.updateTag = function (id, name) {
+	var that = this
+	var formData = {tag: {id: id, name: name}}
+	var updateUrl = tagUrls.update
+
+	return new Promise(function (resolve, reject) {
+		that.fetchAccessToken()
+			.then(function (data) {
+				var url = updateUrl + '?access_token=' + data.access_token
+
+				var options = {
+					method: 'POST',
+					url: url,
+					body: formData,
+					json:true
+				}
+
+				request(options)
+					.then(function (res) {
+						var _data = res.body
+
+						/////////////////////
+						// _data return    //
+						// {         	   //
+						//   "errcode":0,  //
+						//   "errmsg":"ok" //
+						// }               //
+						/////////////////////
+
+						if (_data) {
+							resolve(_data)
+						}
+						else{
+							throw new Error('Update Tag Fails')
+						}
+					})
+					.catch(function (err) {
+						reject(err)
+					})
+			})
+	})
+}
+
+WeChat.prototype.deleteTag = function (id) {
+	var that = this
+	var formData = {tag: {id: id}}
+	var deleteUrl = tagUrls.delete
+
+	return new Promise(function (resolve, reject) {
+		that.fetchAccessToken()
+			.then(function (data) {
+				var url = deleteUrl + '?access_token=' + data.access_token
+
+				var options = {
+					method: 'POST',
+					url: url,
+					body: formData,
+					json:true
+				}
+
+				request(options)
+					.then(function (res) {
+						var _data = res.body
+
+						/////////////////////
+						// _data return    //
+						// {         	   //
+						//   "errcode":0,  //
+						//   "errmsg":"ok" //
+						// }               //
+						/////////////////////
+
+						if (_data) {
+							resolve(_data)
+						}
+						else{
+							throw new Error('DEL Tag Fails')
+						}
+					})
+					.catch(function (err) {
+						reject(err)
+					})
+			})
+	})
+}
+
+WeChat.prototype.getTagUsers = function (tagid, next_openid) {
+	var that = this
+
+	next_openid = next_openid || ''
+	var formData = {tagid: tagid, next_openid: next_openid}
+	var getUsersUrl = tagUrls.getUsers
+
+	return new Promise(function (resolve, reject) {
+		that.fetchAccessToken()
+			.then(function (data) {
+				var url = getUsersUrl + '?access_token=' + data.access_token
+
+				var options = {
+					method: 'POST',
+					url: url,
+					body: formData,
+					json:true
+				}
+
+				request(options)
+					.then(function (res) {
+						var _data = res.body
+
+						if (_data) {
+							resolve(_data)
+						}
+						else{
+							throw new Error('GetTagUsers Fails')
+						}
+					})
+					.catch(function (err) {
+						reject(err)
+					})
+			})
+	})
+}
+
+WeChat.prototype.batchTagging = function (openid_list, tagid) {
+	var that = this
+
+	openid_list = openid_list || []
+	var formData = {openid_list: openid_list, tagid}
+	var batchTaggingUrl = tagUrls.batchTagging
+
+	return new Promise(function (resolve, reject) {
+		that.fetchAccessToken()
+			.then(function (data) {
+				var url = batchTaggingUrl + '?access_token=' + data.access_token
+
+				var options = {
+					method: 'POST',
+					url: url,
+					body: formData,
+					json:true
+				}
+
+				request(options)
+					.then(function (res) {
+						var _data = res.body
+
+						if (_data) {
+							resolve(_data)
+						}
+						else{
+							throw new Error('BatchTagging Fails')
+						}
+					})
+					.catch(function (err) {
+						reject(err)
+					})
+			})
+	})
+}
+
+WeChat.prototype.batchUntagging = function (openid_list, tagid) {
+	var that = this
+	var formData = {tagid: tagid, next_openid: next_openid}
+	var batchUntaggingUrl = tagUrls.batchUntagging
+
+	return new Promise(function (resolve, reject) {
+		that.fetchAccessToken()
+			.then(function (data) {
+				var url = batchUntaggingUrl + '?access_token=' + data.access_token
+
+				var options = {
+					method: 'POST',
+					url: url,
+					body: formData,
+					json:true
+				}
+
+				request(options)
+					.then(function (res) {
+						var _data = res.body
+
+						if (_data) {
+							resolve(_data)
+						}
+						else{
+							throw new Error('GetTagUsers Fails')
+						}
+					})
+					.catch(function (err) {
+						reject(err)
+					})
+			})
+	})
+}
+
+WeChat.prototype.getIdList = function (openid) {
+	var that = this
+	var formData = {openid: openid}
+	var getIdListUrl = tagUrls.getIdList
+
+	return new Promise(function (resolve, reject) {
+		that.fetchAccessToken()
+			.then(function (data) {
+				var url = getIdListUrl + '?access_token=' + data.access_token
+
+				var options = {
+					method: 'POST',
+					url: url,
+					body: formData,
+					json:true
+				}
+
+				request(options)
+					.then(function (res) {
+						var _data = res.body
+
+						////////////////////////////////////////
+						// {                                  //
+						//   "tagid_list":[134, 2] //被置上的标签列表 //
+						// }                                  //
+						////////////////////////////////////////
+
+						if (_data) {
+							resolve(_data)
+						}
+						else{
+							throw new Error('GetIdList Fails')
 						}
 					})
 					.catch(function (err) {

@@ -2,11 +2,14 @@
 * @Author: Alan
 * @Date:   2017-05-10 02:43:11
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-10 17:45:29
+* @Last Modified time: 2017-05-11 16:41:55
 */
 
 'use strict';
 
+var fs = require('fs')
+var Promise = require('bluebird')
+var readFile = Promise.promisify(fs.readFile)
 var config = require('../configs/authentication')
 var WeChat = require('./WeChat')
 var wechatApi = new WeChat(config.WECHAT)
@@ -40,6 +43,21 @@ exports.reply = function* (next) {
 	}else if (message.MsgType === 'text') {
 		var content = message.Content
 		var reply = 'What you have said ' + message.Content + ' is too complex, I cannot answer you'  
+
+		if (/help || 帮助/.test(content)) {
+			var _data = yield (new Promise(function (resolve, reject) {
+				readFile(__dirname + '/../configs/replyHelper.txt', {encoding: 'utf-8', flag: 'r'})
+					.then(function (data) {
+						if (data) {
+							resolve(data.toString())
+						}
+					})
+					.catch(function (err) {
+						reject(err)
+					}) 
+			}))
+			reply = _data
+		}
 
 		if (content === '1') reply = 'Programming'
 		else if (content === '2') reply = 'Reading'
@@ -131,7 +149,7 @@ exports.reply = function* (next) {
 
 			reply = news
 		}
-		else if (content === '10') {
+		else if (content === '10') { // 查看永久素材列表
 			var count = yield wechatApi.getMaterialCount()
 
 			console.log(JSON.stringify(count))
@@ -166,6 +184,21 @@ exports.reply = function* (next) {
 				voice: list3,
 				news: list4
 			})
+		}
+		else if (/^(11)\.*/.test(content) && content.match(/^(11)\.*/)[1] === '11') { // 创建标签
+			if (tagName) {
+				var tagName = content.match(/^(11)\.([\w\u4e00-\u9fa5]+)/)[2]
+				var data = yield wechatApi.createTag(tagName)
+				var replyTpl = 'You create the tag named %s successfully!'
+				reply = replyTpl.replace('%s', data.tag.name)
+			}else{
+				reply = 'Please Give the Tag Name!'
+			}
+		}
+		else if (content === '12') {
+			var tagList = yield wechatApi.getTags()
+			console.log(tagList.tags);
+			reply = JSON.stringify(tagList.tags)
 		}
 
 		this.body = reply
