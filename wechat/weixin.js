@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-10 02:43:11
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-12 17:05:03
+* @Last Modified time: 2017-05-17 18:07:52
 */
 
 'use strict';
@@ -10,9 +10,24 @@
 var fs = require('fs')
 var Promise = require('bluebird')
 var readFile = Promise.promisify(fs.readFile)
+
 var config = require('../configs/authentication')
+var menuType = require('../configs/enum').MENU
+var menu = require('../configs/menu')
+
 var WeChat = require('./WeChat')
 var wechatApi = new WeChat(config.WECHAT)
+
+
+
+// 自定义菜单创建
+// wechatApi.customerMenu(menuType.DELETE.id) 						// 初始化菜单设置
+// 	.then(function () {
+// 		return wechatApi.customerMenu(menuType.CREATE.id, menu) // 创建自定义菜单
+// 	})
+// 	.then(function (msg) {
+// 		console.log(msg)
+// 	})
 
 exports.reply = function* (next) {
 	var message = this.weixin
@@ -231,6 +246,16 @@ exports.reply = function* (next) {
  			console.log('user_list:', userList)
 
  			reply = JSON.stringify(userList)
+ 		}
+ 		else if (content === '16') {
+ 			// 自定义菜单创建
+			wechatApi.customerMenu(menuType.DELETE.id) 						// 初始化菜单设置
+				.then(function () {
+					return wechatApi.customerMenu(menuType.CREATE.id, menu) // 创建自定义菜单
+				})
+				.then(function (msg) {
+					console.log(msg)
+				})
  		}
 
 		this.body = reply

@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-04 21:31:52
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-12 16:14:44
+* @Last Modified time: 2017-05-17 15:50:22
 */
 
 'use strict';
@@ -40,5 +40,16 @@ module.exports = {
 		getUserInfo: urlPrefix + 'user/info',					// 获取用户基本信息
 		getUsersInfo: urlPrefix + 'user/info/batchget',			// 批量获取用户信息
 		getUsersList: urlPrefix + 'user/get',					// 获取用户列表	
+	},
+	mass: {
+		tag: urlPrefix + 'message/mass/sendall',				// 根据标签进行群发
+		delete: urlPrefix + 'message/mass/delete',				// 删除群发
+		preview: urlPrefix + 'message/mass/preview',			// 预览
+		getStatus: urlPrefix + 'message/mass/get'				// 查询发送状态
+	},
+	menu: {
+		create: urlPrefix + 'menu/create',						// 创建自定义菜单
+		get: urlPrefix + 'menu/get',							// 查询
+		delete: urlPrefix + 'menu/delete'						// 删除
 	}
 }

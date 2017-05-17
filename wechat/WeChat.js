@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-05 11:37:37
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-12 17:12:31
+* @Last Modified time: 2017-05-17 18:11:28
 */
 
 'use strict';
@@ -581,7 +581,7 @@ WeChat.prototype.batchTagging = function (openid_list, tagid) {
 	var that = this
 
 	openid_list = openid_list || []
-	var formData = {openid_list: openid_list, tagid}
+	var formData = {openid_list: openid_list, tagid: tagid}
 	var batchTaggingUrl = tagUrls.batchTagging
 
 	return new Promise(function (resolve, reject) {
@@ -788,16 +788,15 @@ WeChat.prototype.getUsersList = function (next_openid) {
 }
 
 
-// WeChat.prototype.getUsersList = function (next_openid) {
+// WeChat.prototype.sendAll = function (type, message, tagId) {
 // 	var that = this
-// 	var next_openid = next_openid || ''
 	
 // 	return new Promise(function (resolve, reject) {
 // 		that.fetchAccessToken()
 // 			.then(function (data) {
 // 				var url = wechatApi.user.getUsersList + '&next_openid=' + next_openid
 // 				var options = {
-// 					method: 'GET',
+// 					method: 'POST',
 // 					url: url,
 // 					json:true
 // 				}
@@ -806,6 +805,46 @@ WeChat.prototype.getUsersList = function (next_openid) {
 // 			})
 // 	})
 // }
+ 
+WeChat.prototype.customerMenu = function (type, menu ) {
+	var that = this
+	var options = {
+		url: weChatApi.menu.create,
+		method: 'POST',
+		json:true,
+		body: menu
+	}
 
+	switch(type) {
+		case 1:
+			break
+
+		case 2:
+			options.url = weChatApi.menu.get
+			options.method = 'GET'
+			options.body = null
+			break
+
+		case 3:
+			options.url = weChatApi.menu.delete
+			options.method = 'GET'
+			options.body = null
+			break
+
+		default:
+			break
+	}
+
+	return new Promise(function (resolve, reject) {
+
+		that.fetchAccessToken()
+			.then(function (data) {
+				options.url += '?access_token=' + data.access_token
+				var err = 'Customer ' + type + ' trigger fails'
+
+				that.request(resolve, reject, options, err)
+			})
+	})
+}
 
 module.exports = WeChat
