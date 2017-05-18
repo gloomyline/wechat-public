@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-05 11:37:37
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-17 18:11:28
+* @Last Modified time: 2017-05-18 12:01:19
 */
 
 'use strict';
@@ -787,25 +787,61 @@ WeChat.prototype.getUsersList = function (next_openid) {
 	})
 }
 
+/**
+ * 群发
+ * @Author   Alan
+ * @DateTime 2017-05-18
+ * @Example  {[Example]}
+ * @param    String     type    	群发消息类型
+ * @param    Any    	message    	群发内容
+ * @param    Array   	symbol   	openIDs or tag
+ * @return   {[type]}            
+ */
+WeChat.prototype.sendAll = function (type, message, symbol) {
+	var that = this
+	var url = weChatApi.mass.tag
+	var formData = {
+		filter: {
+		 	is_to_all: false,
+      		tag_id: symbol
+		},
+		msgtype: type
+	}
+	formData[type] = message
 
-// WeChat.prototype.sendAll = function (type, message, tagId) {
-// 	var that = this
-	
-// 	return new Promise(function (resolve, reject) {
-// 		that.fetchAccessToken()
-// 			.then(function (data) {
-// 				var url = wechatApi.user.getUsersList + '&next_openid=' + next_openid
-// 				var options = {
-// 					method: 'POST',
-// 					url: url,
-// 					json:true
-// 				}
+	console.log('11', formData)
 
-// 				that.request(options, 'GET Users List Fails')
-// 			})
-// 	})
-// }
- 
+	if (_.isArray(symbol)) {
+		formData.filter = null
+		formData.touser = symbol
+		url = weChatApi.mass.openids
+	}
+
+	return new Promise(function (resolve, reject) {
+		that.fetchAccessToken()
+			.then(function (data) {
+				url += ('?access_token=' + data.access_token)
+				var options = {
+					method: 'POST',
+					url: url,
+					json:true,
+					body: formData
+				}
+
+				that.request(resolve, reject, options, 'GET Users List Fails')
+			})
+	})
+}
+
+/**
+ * 自定义菜单
+ * @Author   Alan
+ * @DateTime 2017-05-18
+ * @Example  {[Example]}
+ * @param    Number    	type 	1: 创建, 2: 查询, 3. 删除
+ * @param    JSON    	menu 	菜单设置
+ * @return   {[type]}         	[description]
+ */
 WeChat.prototype.customerMenu = function (type, menu ) {
 	var that = this
 	var options = {

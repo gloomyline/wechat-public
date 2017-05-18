@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-04 21:31:52
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-18 10:20:02
+* @Last Modified time: 2017-05-18 11:51:42
 */
 
 'use strict';
@@ -43,6 +43,7 @@ module.exports = {
 	},
 	mass: {
 		tag: urlPrefix + 'message/mass/sendall',				// 根据标签进行群发
+		openids: urlPrefix + 'message/mass/send',				// 根据 openid list
 		delete: urlPrefix + 'message/mass/delete',				// 删除群发
 		preview: urlPrefix + 'message/mass/preview',			// 预览
 		getStatus: urlPrefix + 'message/mass/get'				// 查询发送状态

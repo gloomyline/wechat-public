@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-10 02:43:11
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-18 10:02:35
+* @Last Modified time: 2017-05-18 12:02:30
 */
 
 'use strict';
@@ -48,7 +48,7 @@ exports.reply = function* (next) {
 		var content = message.Content
 		var reply = 'What you have said ' + message.Content + ' is too complex, I cannot answer you'  
 
-		if (/help/.test(content)) {
+		if (/help/.test(content) || /帮助/.test(content)) {
 			var _data = yield (new Promise(function (resolve, reject) {
 				readFile(__dirname + '/../configs/replyHelper.txt', {encoding: 'utf-8', flag: 'r'})
 					.then(function (data) {
@@ -159,35 +159,30 @@ exports.reply = function* (next) {
 			console.log(JSON.stringify(count))
 
 			var list1 = yield wechatApi.getMaterialList({
-				type: 'image',
-				offset: 0,
-				count: 10
+				type: 'image'
 			})
 
 			var list2 = yield wechatApi.getMaterialList({
-				type: 'video',
-				offset: 0,
-				count: 10
+				type: 'video'
 			})
 
 			var list3 = yield wechatApi.getMaterialList({
-				type: 'voice',
-				offset: 0,
-				count: 10
+				type: 'voice'
 			})
 
 			var list4 = yield wechatApi.getMaterialList({
-				type: 'news',
-				offset: 0,
-				count: 10
+				type: 'news'
 			})
 
-			reply = JSON.stringify({
-				image: list1,
-				video: list2,
-				voice: list3,
-				news: list4
-			})
+			// reply = JSON.stringify({
+			// 	image: list1,
+			// 	video: list2,
+			// 	voice: list3,
+			// 	news: list4
+			// })
+			reply = JSON.stringify(count)
+
+			console.log(reply)
 		}
 		else if (/^(11)\.*/.test(content) && content.match(/^(11)\.*/)[1] === '11') { // 创建标签
 			if (tagName) {
@@ -205,8 +200,8 @@ exports.reply = function* (next) {
 			reply = JSON.stringify(tagList.tags)
 		}
 		else if (content === '13') {
-			var tag = yield wechatApi.createTag('Wechat')
-			console.log('new tag wechat:', tag)
+			// var tag = yield wechatApi.createTag('Wechat')
+			// console.log('new tag wechat:', tag)
 
 			var tagList = yield wechatApi.getTags()
 			console.log('tag list: ', tagList)
@@ -245,6 +240,20 @@ exports.reply = function* (next) {
 				.then(function (msg) {
 					console.log(msg)
 				})
+ 		}
+ 		else if (content === '17') { // 群发消息										
+ 			// var type = 'mpnews'
+ 			// var message = {
+ 			// 	media_id: 'ABhs8LPXgVmehrslmpNbOKt7jKSssT_XO2tdxdAvMUQ'
+ 			// }
+ 			var type = 'text'
+ 			var message = {
+ 				content: '测试群发消息'
+ 			}
+ 			var tag = 105
+ 			var result = yield wechatApi.sendAll(type, message, tag)
+
+ 			console.log(result)
  		}
 
 		this.body = reply
