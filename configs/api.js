@@ -2,7 +2,7 @@
 * @Author: Alan
 * @Date:   2017-05-04 21:31:52
 * @Last Modified by:  Alan
-* @Last Modified time: 2017-05-17 15:50:22
+* @Last Modified time: 2017-05-18 10:20:02
 */
 
 'use strict';
@@ -23,7 +23,7 @@ module.exports = {
 		delete: urlPrefix + 'material/del_material',			// 删除永久素材
 		update: urlPrefix + 'material/update_news',				// 更新永久图文素材
 		count: urlPrefix + 'material/get_materialcount',		// 素材总数
-		list: urlPrefix + 'material/batchget_materia'			// 素材列表
+		list: urlPrefix + 'material/batchget_material'			// 素材列表
 	},
 	tag: {														// 标签管理
 		create: urlPrefix + 'tags/create',						// 创建标签
